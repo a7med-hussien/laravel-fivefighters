@@ -6,6 +6,7 @@
 	<link rel="stylesheet" href="{{ asset('public/plugins/bootstrap/css/bootstrap.min.css') }}">
 	<link rel="stylesheet" href="{{ asset('public/plugins/fontawesome/css/font-awesome.min.css') }}">
 	<link rel="stylesheet" href="{{ asset('public/plugins/sweetalert/css/sweetalert.css') }}">
+	<link rel="stylesheet" href="{{ asset('public/plugins/slim/css/slim.min.css') }}">
 	<style>
 		.mt-20 {
 			margin-top: 20px;
@@ -23,9 +24,12 @@
 					</button>
 				</div>
 				<div class="col-md-6">
-					<button class="btn btn-info btn-block">
-						<i class="fa fa-search"></i>
-					</button>
+					<form action="#" type='POST' id="search">
+						<div class="form-group">
+							{{ csrf_field() }}
+							<input type="search" name="search" placeholder="Search" class="form-control">
+						</div>
+					</form>
 				</div>
 			</div>
 			<div class="col-md-12">
@@ -35,19 +39,19 @@
 							<th>id</th>
 							<th>name</th>
 							<th>email</th>
+							<th>Image</th>
 							<th>Action</th>
 						</tr>
 					</thead>
 					<tbody id="users-output">
-						
 						{{-- @foreach($users as $user)
 							<tr>
 								<td>{{ $user->id }}</td>
 								<td>{{ $user->name }}</td>
 								<td>{{ $user->email }}</td>
+								<td></td>
 							</tr>
 						@endforeach --}}
-					
 					</tbody>
 				</table>
 			</div>
@@ -67,6 +71,15 @@
 				<form action="#" id="add-new-user-form" method="POST">
 					{{ csrf_field() }}
 					<div class="modal-body">
+						<div class="form-group">
+							<label for="avatar">User Avatar</label>
+							<div class="slim"
+						        data-label="Drop your avatar here"
+						        data-size="150,150"
+						        data-ratio="1:1">
+						        <input type="file" name="avatar" required>
+						    </div>
+						</div>
 						<div class="form-group">
 							<label for="name">Username</label>
 							<input type="text" autocomplete="false" name="name" id="name" placeholder="Username ex:john,..." class="form-control">
@@ -132,6 +145,7 @@
 	<script src="{{ asset('public/plugins/jquery/jquery.min.js') }}"></script>
 	<script src="{{ asset('public/plugins/bootstrap/js/bootstrap.min.js') }}"></script>
 	<script src="{{ asset('public/plugins/sweetalert/js/sweetalert.min.js') }}"></script>
+	<script src="{{ asset('public/plugins/slim/js/slim.kickstart.min.js') }}"></script>
 	<script>
 		$(function(){
 
@@ -145,7 +159,7 @@
 							users_output += '<tr><td class="text-center"><i class="fa fa-user view-user" data-hamada="'+value.id+'"></i> '+
 									value.id+'</td><td>'+
 									value.name+'</td><td>'+
-									value.email+'</td><td class="text-danger"><i class="fa fa-trash remove-user" data-id="'+
+									value.email+'</td><td><img src="'+value.avatar+'" class="img-responsive"></td><td class="text-danger"><i class="fa fa-trash remove-user" data-id="'+
 									value.id+'"></i></td></tr>';
 						});
 						$('#users-output').html(users_output);
@@ -229,6 +243,25 @@
 					});
 				  	swal("Deleted!", "Your User has been deleted.", "success");
 					getUsers();
+				});
+			});
+
+			$('form#search').on('keyup', function(event){
+				event.preventDefault();
+
+				var search_output = '';
+				
+				$.ajax({
+					url: 'search',
+					data: $(this).serialize(),
+					type: 'POST',
+					success: function(response) {
+						$.each(response, function(index, value){
+							search_output += '<tr><td><i class="fa fa-user"></i> '+value.id+'</td><td>'+value.name+'</td><td>'+value.email+'</td><td><i class="fa fa-trash text-danger"></i></td></tr>';
+						});
+
+						$('#users-output').html(search_output);
+					}
 				});
 			});
 		});

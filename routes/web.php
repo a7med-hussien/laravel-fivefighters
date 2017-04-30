@@ -17,3 +17,6 @@ Route::put('updateUserInfo', 'HomeController@updateUserInfo');
 Route::delete('deleteUser', 'HomeController@deleteUser');
 Route::get('/', 'HomeController@index');
 Route::post('/', 'HomeController@store');
+
+
+Route::post('search', 'HomeController@search');
